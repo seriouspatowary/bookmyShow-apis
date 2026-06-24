@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import User, { UserRole } from "../models/user.model";
-import { platform } from "node:os";
+import jwt from "jsonwebtoken"
+import { generateAccessToken } from "../utils/jwt";
 
 interface RegisterPayload {
   name: string;
@@ -13,6 +14,11 @@ interface RegisterPayload {
 interface LoginPayload {
   email: string;
   password: string;
+}
+
+interface RefreshPayload {
+  userId: string;
+  role: UserRole;
 }
 
 export const registerUser = async (
@@ -69,3 +75,32 @@ export const loginUser = async(payload:LoginPayload)=>{
 
     return user;
 }
+
+
+export const refreshAccessToken = async (
+  refreshToken: string
+) => {
+
+  const payload = jwt.verify(
+    refreshToken,
+    process.env.REFRESH_SECRET!
+  ) as RefreshPayload;
+
+  const user = await User.findById(
+    payload.userId
+  ).select("-password");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const accessToken = generateAccessToken({
+    userId: payload.userId,
+    role: payload.role,
+  });
+
+  return {
+    accessToken,
+    user,
+  };
+};
