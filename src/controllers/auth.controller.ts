@@ -103,7 +103,6 @@ export const refresh = async(req:Request, res:Response) =>{
             message: "Refresh token missing",
           });
         }
-        const accessToken = await refreshAccessToken(refreshToken)
 
        const result = await refreshAccessToken(refreshToken);
 
@@ -125,4 +124,17 @@ export const refresh = async(req:Request, res:Response) =>{
       message: "Invalid refresh token",
     });
   }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };

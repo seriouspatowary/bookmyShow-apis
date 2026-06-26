@@ -8,7 +8,7 @@ import authRoutes from "./routes/auth.routes";
 const app = express();
 
 app.use(cors({
-  origin: "https://myshowapp.vercel.app",
+  origin: ["https://myshowapp.vercel.app","http://localhost:3000"],
   credentials: true,
 }));
 
